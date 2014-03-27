@@ -298,23 +298,39 @@ static void calculate_minimum_redundancy(sym_freq *A, int n)
       A[0].m_key = 1;
       return;
    }
+   
    A[0].m_key += A[1].m_key; root = 0; leaf = 2;
+   
    for (next=1; next < n-1; next++)
    {
       if (leaf>=n || A[root].m_key<A[leaf].m_key)
       {
          A[next].m_key = A[root].m_key;
          A[root++].m_key = next;
-      } else A[next].m_key = A[leaf++].m_key;
+      }
+      else
+      {
+         A[next].m_key = A[leaf++].m_key;
+      }
+      
       if (leaf>=n || (root<next && A[root].m_key<A[leaf].m_key))
       {
          A[next].m_key += A[root].m_key;
          A[root++].m_key = next;
-      } else A[next].m_key += A[leaf++].m_key;
+      }
+      else
+      {
+         A[next].m_key += A[leaf++].m_key;
+      }
    }
    A[n-2].m_key = 0;
-   for (next=n-3; next>=0; next--) A[next].m_key = A[A[next].m_key].m_key+1;
+   
+   for (next=n-3; next>=0; next--)
+   {
+      A[next].m_key = A[A[next].m_key].m_key+1;
+   }
    avbl = 1; used = dpth = 0; root = n-2; next = n-1;
+
    while (avbl>0)
    {
       while (root>=0 && (int)A[root].m_key==dpth)
@@ -336,11 +352,16 @@ static void huffman_enforce_max_code_size(int *pNum_codes, int code_list_len, in
 {
    if (code_list_len <= 1) return;
 
-   for (int i = max_code_size + 1; i <= MAX_HUFF_CODESIZE; i++) pNum_codes[max_code_size] += pNum_codes[i];
+   for (int i = max_code_size + 1; i <= MAX_HUFF_CODESIZE; i++)
+   {
+      pNum_codes[max_code_size] += pNum_codes[i];
+   }
 
    uint32 total = 0;
    for (int i = max_code_size; i > 0; i--)
+   {
       total += (((uint32)pNum_codes[i]) << (max_code_size - i));
+   }
 
    while (total != (1UL << max_code_size))
    {
@@ -365,18 +386,22 @@ void huffman_table::optimize(int table_len)
    syms0[0].m_key = 1; syms0[0].m_sym_index = 0;  // dummy symbol, assures that no valid code contains all 1's
    int num_used_syms = 1;
    for (int i = 0; i < table_len; i++)
+   {
       if (m_count[i])
       {
          syms0[num_used_syms].m_key = m_count[i];
          syms0[num_used_syms++].m_sym_index = i + 1;
       }
+   }
    sym_freq *pSyms = radix_sort_syms(num_used_syms, syms0, syms1);
    calculate_minimum_redundancy(pSyms, num_used_syms);
 
    // Count the # of symbols of each code size.
    int num_codes[1 + MAX_HUFF_CODESIZE]; clear_obj(num_codes);
    for (int i = 0; i < num_used_syms; i++)
+   {
       num_codes[pSyms[i].m_key]++;
+   }
 
    const uint JPGE_CODE_SIZE_LIMIT = 16; // the maximum possible size of a JPEG Huffman code (valid range is [9,16] - 9 vs. 8 because of the dummy symbol)
    huffman_enforce_max_code_size(num_codes, num_used_syms, JPGE_CODE_SIZE_LIMIT);
@@ -384,7 +409,9 @@ void huffman_table::optimize(int table_len)
    // Compute m_huff_bits array, which contains the # of symbols per code size.
    clear_obj(m_bits);
    for (int i = 1; i <= (int)JPGE_CODE_SIZE_LIMIT; i++)
+   {
       m_bits[i] = static_cast<uint8>(num_codes[i]);
+   }
 
    // Remove the dummy symbol added above, which must be in largest bucket.
    for (int i = JPGE_CODE_SIZE_LIMIT; i >= 1; i--)
@@ -398,7 +425,9 @@ void huffman_table::optimize(int table_len)
 
    // Compute the m_huff_val array, which contains the symbol indices sorted by code size (smallest to largest).
    for (int i = num_used_syms - 1; i >= 1; i--)
+   {
       m_val[num_used_syms - 1 - i] = static_cast<uint8>(pSyms[i].m_sym_index - 1);
+   }
 }
 
 // JPEG marker generation.
@@ -442,7 +471,9 @@ void jpeg_encoder::emit_dqt()
       emit_word(64 + 1 + 2);
       emit_byte(static_cast<uint8>(i));
       for (int j = 0; j < 64; j++)
+      {
          emit_byte(static_cast<uint8>(m_huff[i].m_quantization_table[j]));
+      }
    }
 }
 

@@ -1,0 +1,7 @@
+encoder.cpp
+jpgd.cpp
+jpgd.h
+jpge.cpp
+jpge.h
+stb_image.c
+timer.h

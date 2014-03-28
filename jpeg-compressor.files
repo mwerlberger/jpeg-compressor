@@ -1,4 +1,5 @@
 encoder.cpp
+encoder_mw.cpp
 jpgd.cpp
 jpgd.h
 jpge.cpp

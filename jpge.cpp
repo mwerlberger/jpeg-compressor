@@ -298,9 +298,9 @@ static void calculate_minimum_redundancy(sym_freq *A, int n)
       A[0].m_key = 1;
       return;
    }
-   
+
    A[0].m_key += A[1].m_key; root = 0; leaf = 2;
-   
+
    for (next=1; next < n-1; next++)
    {
       if (leaf>=n || A[root].m_key<A[leaf].m_key)
@@ -312,7 +312,7 @@ static void calculate_minimum_redundancy(sym_freq *A, int n)
       {
          A[next].m_key = A[leaf++].m_key;
       }
-      
+
       if (leaf>=n || (root<next && A[root].m_key<A[leaf].m_key))
       {
          A[next].m_key += A[root].m_key;
@@ -324,7 +324,7 @@ static void calculate_minimum_redundancy(sym_freq *A, int n)
       }
    }
    A[n-2].m_key = 0;
-   
+
    for (next=n-3; next>=0; next--)
    {
       A[next].m_key = A[A[next].m_key].m_key+1;
@@ -438,12 +438,14 @@ void jpeg_encoder::emit_byte(uint8 i)
 
 void jpeg_encoder::emit_word(uint i)
 {
-   emit_byte(uint8(i >> 8)); emit_byte(uint8(i & 0xFF));
+   emit_byte(uint8(i >> 8));
+   emit_byte(uint8(i & 0xFF));
 }
 
 void jpeg_encoder::emit_marker(int marker)
 {
-   emit_byte(uint8(0xFF)); emit_byte(uint8(marker));
+   emit_byte(uint8(0xFF));
+   emit_byte(uint8(marker));
 }
 
 // Emit JFIF marker
@@ -610,8 +612,12 @@ void jpeg_encoder::compute_quant_table(int32 *pDst, int16 *pSrc)
 
 void jpeg_encoder::reset_last_dc()
 {
-   m_bit_buffer = 0; m_bits_in = 0;
-   m_comp[0].m_last_dc_val=0; m_comp[1].m_last_dc_val=0; m_comp[2].m_last_dc_val=0;
+   m_bit_buffer = 0;
+   m_bits_in = 0;
+
+   m_comp[0].m_last_dc_val=0;
+   m_comp[1].m_last_dc_val=0;
+   m_comp[2].m_last_dc_val=0;
 }
 
 void jpeg_encoder::compute_huffman_tables()
@@ -638,31 +644,31 @@ bool jpeg_encoder::jpg_open(int p_x_res, int p_y_res)
    switch (m_params.m_subsampling)
    {
       case Y_ONLY:
-         {
-            m_num_components = 1;
-            m_comp[0].m_h_samp = 1; m_comp[0].m_v_samp = 1;
-            m_mcu_w            = 8; m_mcu_h            = 8;
-            break;
-         }
+      {
+         m_num_components = 1;
+         m_comp[0].m_h_samp = 1; m_comp[0].m_v_samp = 1;
+         m_mcu_w            = 8; m_mcu_h            = 8;
+         break;
+      }
       case H1V1:
-         {
-            m_comp[0].m_h_samp = 1; m_comp[0].m_v_samp = 1;
-            m_comp[1].m_h_samp = 1; m_comp[1].m_v_samp = 1;
-            m_comp[2].m_h_samp = 1; m_comp[2].m_v_samp = 1;
-            m_mcu_w            = 8; m_mcu_h            = 8;
-            break;
-         }
+      {
+         m_comp[0].m_h_samp = 1; m_comp[0].m_v_samp = 1;
+         m_comp[1].m_h_samp = 1; m_comp[1].m_v_samp = 1;
+         m_comp[2].m_h_samp = 1; m_comp[2].m_v_samp = 1;
+         m_mcu_w            = 8; m_mcu_h            = 8;
+         break;
+      }
       case H2V1:
-         {
-            m_comp[0].m_h_samp = 2; m_comp[0].m_v_samp = 1;
-            m_comp[1].m_h_samp = 1; m_comp[1].m_v_samp = 1;
-            m_comp[2].m_h_samp = 1; m_comp[2].m_v_samp = 1;
-            m_mcu_w            = 16; m_mcu_h           = 8;
-            break;
-         }
+      {
+         m_comp[0].m_h_samp = 2; m_comp[0].m_v_samp = 1;
+         m_comp[1].m_h_samp = 1; m_comp[1].m_v_samp = 1;
+         m_comp[2].m_h_samp = 1; m_comp[2].m_v_samp = 1;
+         m_mcu_w            = 16; m_mcu_h           = 8;
+         break;
+      }
       case H2V2:
-         {
-            m_comp[0].m_h_samp = 2; m_comp[0].m_v_samp = 2;
+      {
+         m_comp[0].m_h_samp = 2; m_comp[0].m_v_samp = 2;
          m_comp[1].m_h_samp = 1; m_comp[1].m_v_samp = 1;
          m_comp[2].m_h_samp = 1; m_comp[2].m_v_samp = 1;
          m_mcu_w            = 16; m_mcu_h          = 16;
@@ -758,7 +764,8 @@ void jpeg_encoder::quantize_pixels(dct_t *pSrc, dctq_t *pDst, const int32 *quant
 void jpeg_encoder::flush_output_buffer()
 {
    if (m_out_buf_left != JPGE_OUT_BUF_SIZE)
-      m_all_stream_writes_succeeded = m_all_stream_writes_succeeded && m_pStream->put_buf(m_out_buf, JPGE_OUT_BUF_SIZE - m_out_buf_left);
+      m_all_stream_writes_succeeded = m_all_stream_writes_succeeded &&
+            m_pStream->put_buf(m_out_buf, JPGE_OUT_BUF_SIZE - m_out_buf_left);
    m_pOut_buf = m_out_buf;
    m_out_buf_left = JPGE_OUT_BUF_SIZE;
 }
@@ -785,14 +792,12 @@ void jpeg_encoder::put_bits(uint bits, uint len)
 {
    m_bit_buffer |= ((uint32)bits << (24 - (m_bits_in += len)));
 
-#define JPGE_PUT_BYTE(c)                        \
-   {                                            \
-      *m_pOut_buf++ = (c);                      \
-      if (--m_out_buf_left == 0)                \
-         flush_output_buffer();                 \
-   }
+#define JPGE_PUT_BYTE(c) {    \
+   *m_pOut_buf++ = (c);       \
+   if (--m_out_buf_left == 0) \
+   flush_output_buffer(); }
 
-   
+
    while (m_bits_in >= 8)
    {
       uint8 c;
@@ -906,7 +911,8 @@ bool jpeg_encoder::emit_end_markers()
    return m_all_stream_writes_succeeded;
 }
 
-bool jpeg_encoder::compress_image()
+//! @TODO MW dct
+bool jpeg_encoder::quantize_image()
 {
    for(int c=0; c < m_num_components; c++)
    {
@@ -920,7 +926,12 @@ bool jpeg_encoder::compress_image()
          }
       }
    }
+   return true;
+}
 
+//! @todo MW split the blocks when encoding
+bool jpeg_encoder::compress_image()
+{
    for (int y = 0; y < m_y; y+= m_mcu_h)
    {
       code_mcu_row(y, false);
@@ -931,7 +942,8 @@ bool jpeg_encoder::compress_image()
    emit_start_markers();
    for (int y = 0; y < m_y; y+= m_mcu_h)
    {
-      if (!m_all_stream_writes_succeeded) return false;
+      if (!m_all_stream_writes_succeeded)
+         return false;
       code_mcu_row(y, true);
    }
    return emit_end_markers();
@@ -940,14 +952,20 @@ bool jpeg_encoder::compress_image()
 void jpeg_encoder::load_mcu_Y(const uint8 *pSrc, int width, int bpp, int y)
 {
    if (bpp == 4)
+   {
       RGB_to_Y(m_image[0], reinterpret_cast<const rgba *>(pSrc), width, y);
+   }
    else if (bpp == 3)
+   {
       RGB_to_Y(m_image[0], reinterpret_cast<const rgb *>(pSrc), width, y);
+   }
    else
+   {
       for(int x=0; x < width; x++)
       {
          m_image[0].set_px(pSrc[x]-128.0, x, y);
       }
+   }
 
    // Possibly duplicate pixels at end of scanline if not a multiple of 8 or 16
    const float lastpx = m_image[0].get_px(width - 1, y);
@@ -1074,7 +1092,7 @@ class cfile_stream : public output_stream {
    FILE *m_pFile;
    bool m_bStatus;
 
-  public:
+public:
    cfile_stream() : m_pFile(NULL), m_bStatus(false)
    { }
 
@@ -1131,13 +1149,24 @@ bool compress_image_to_stream(output_stream &dst_stream, int width, int height, 
 {
    jpge::jpeg_encoder encoder;
    if (!encoder.init(&dst_stream, width, height, comp_params))
+   {
       return false;
+   }
 
    if (!encoder.read_image(pImage_data, width, height, num_channels))
+   {
       return false;
+   }
+
+   if (!encoder.quantize_image())
+   {
+      return false;
+   }
 
    if (!encoder.compress_image())
+   {
       return false;
+   }
 
    encoder.deinit();
    return true;
@@ -1151,7 +1180,7 @@ class memory_stream : public output_stream
    uint8 *m_pBuf;
    uint m_buf_size, m_buf_ofs;
 
-  public:
+public:
    memory_stream(void *pBuf, uint buf_size) : m_pBuf(static_cast<uint8 *>(pBuf)), m_buf_size(buf_size), m_buf_ofs(0)
    { }
 

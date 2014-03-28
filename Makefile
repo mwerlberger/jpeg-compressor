@@ -1,5 +1,5 @@
 OBJS=jpge.o jpgd.o encoder.o
-BIN=encoder
+BIN=encoder_mw
 CXXFLAGS ?= -O3 -ffast-math -fno-signed-zeros
 
 $(BIN): $(OBJS)

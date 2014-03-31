@@ -356,6 +356,7 @@ int main(int arg_c, char *ppArgs[])
         int buf_size = width * height * 3; // allocate a buffer that's hopefully big enough (this is way overkill for jpeg)
         if (buf_size < 1024) buf_size = 1024;
         void *pBuf = malloc(buf_size);
+        printf("jpge subsampling: %d", (int)params.m_subsampling);
 
         if (!jpge::compress_image_to_jpeg_file_in_memory(pBuf, buf_size, width, height, req_comps, pImage_data, params)) {
             log_printf("Failed creating JPEG data!\n");
